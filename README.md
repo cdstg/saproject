@@ -3,13 +3,15 @@
 This is a simple e-commerce application that a customer can use to purchase a book and pay using Stripe.
 
 The application is PHP based on the [codeigniter framework](https://codeigniter.com/). The styling is based on the Python boilerplate application that was provided. 
-[https://github.com/marko-stripe/sa-takehome-project-python](https://github.com/marko-stripe/sa-takehome-project-python)
+[https://github.com/marko-stripe/sa-takehome-project-python](https://github.com/marko-stripe/sa-takehome-project-python) for the project.
 
 
 ## Requirements 
 - Select a book to purchase.
 - Checkout and purchase the item using Stripe Elements.
 - Display a confirmation of purchase to the user with the total amount of the charge and Stripe Payment Intent ID (beginning with pi_).
+- The application is structured in such a way that you’re able to run it locally and integrate other Stripe features easily later.
+
 
 ## Running the Application
 
@@ -20,26 +22,26 @@ Change to the `src` directory and Rename `sample.evn` to `.env`
 Edit the .`evn` file and enter your Stripe account's test API keys
 
 You will need to set your Stripe STRIPE_SECRET_KEY  and STRIPE_PUBLISHABLE_KEY
-in file you can obtain these at  [stripe.com](https://dashboard.stripe.com/login/)
+in file.
+You can obtain these at  [stripe.com](https://dashboard.stripe.com/login/) with an existing account or you can create and account.
 
 ### Running with Docker
 The quickest way to run the project is with Docker.
 
-In the root directory run 
+In the projects root directory run 
 
 `docker compose up -d`
 
 Navigate to [http://localhost:8080](http://localhost:8080) to view the application in your browser.
 
-If that port is alreay in use you can edit the `docker-compose.yml
-` and change  the port.
+If that port is already in use you can edit the `docker-compose.yml`  and change  the port.
 
 > [!IMPORTANT]
-> if you have already run docker compose up  and you have changed the port or the stripe keys
+> if you have already run docker compose up,  and you have changed the port or the stripe keys
 > run `docker compose up -d --build` to rebuild the container.
 
 ### Running with PHP locally
-Alternately you can run the project locally with PHP
+Alternately you can run the project locally with PHP.
 
 PHP version 8.1 or higher is required, with the following extensions installed:
 
@@ -58,6 +60,7 @@ Navigate to [http://localhost:8080](http://localhost:8080) to view the applicati
 
 if the port is in use you can run `php spark serve -port <your port>`
 
+
 ## Usage
 Select a book to purchase and you will be then presented with a payment page when you can enter a card number.
 
@@ -65,22 +68,49 @@ Test card numbers for both Success and Declines are available at
 [https://docs.stripe.com/testing](https://docs.stripe.com/testing)
 
 
-##
+## Solution Approach
+After reviewing the requirements, reading the Stripe documentation and running the supplied Python boilerplate application I concluded that the Payment Intents API would be the best method to meet the requirements.
 
+Thsi will allow the application to be extend and integrate wirth other features later on.
+
+I decided ot build the application in PHP with the framework as this will make it more flexible should we need to add database features authentication and other features later on.
+I chose the [codeigniter framework](https://codeigniter.com/) as its quite fast when compared to some other.
+
+As the projecty required  the application to run standaone I created a docker container ss tha  person running or testing the application would not need to have PHP installed and the other requirements for the appalction.
+The application can running locally under PHP as long at the application requirements are meet that are explained in the [Running the Application](#running-the-aaplication).
+
+ 
 ## How the solution works
 
-The application uses the Payment Intents API to create the intent to pay and received the information about the payment with the Charges API
+The customer enters the site, and the default control displays the default view with a listing of the books for sale.
+
+The customer selects a book to purchase, on clicking the purchase button it does a form post to the checkout controller which has the products and prices hard coded.
+
+The checkout controller calls the Payment Intents API create method which returns the Intent and a customer secret.  It then displays the checkout view where the Stripe form will display.
+
+The checkout view includes the Stripe JS library as well as  initialising  the Stripe elements that are then displayed to the customer (This is embedded on the  HTML page via an Iframe)
+
+The Customer enters their card details, and they are validated and then when they click pay the stripe.confirmPayment() method  is called by JavaScript.
+
+This method decides if the payment is a success or failure. If the payment failed the error is trapped and displayed to the customer where they can try again.
+
+If the payment is successful a Charge is created on the Stripe backend and the JavaScript issues a redirect to the `return_url`  with the Payment Intent ID provided as a GET parameter.
+
+The Success controller calls the Payment Intents API to receive the information about the payment, and additionally it calls the Charges API to obtain additional information and then displays the success view.
+
 
 ## Challenges
 The main challenge I had was working out how to retrieve the email address I had set under the Billing Address in the Intent.
-as the paymentIntents->retrieve did not provide that.
+as the paymentIntents->retrieve did not provide that information.
 
-I also had to familiarize my self with the Methods and Attributes of the Intents API as previously I had only used the now Deprecated Stripe Charges API.
+When I realised that a Charge had been created I could retrieve that information using the Charges APi as the chargeid is in the Intent object that was retried. 
+
+I also had to familiarise myself with the Methods and Attributes of the Payments Intents API as previously I had only used the now Deprecated Stripe Charges API.
 
 
 ## Resources used
 
-The followig are links to the Stripe Documantion for the API's used in the appication.
+The following are links to the Stripe Documentation for the APIs used in the application.
 
 - [Stripe Web Elements](https://docs.stripe.com/payments/elements)
 - [How Payment Intents work](https://docs.stripe.com/payments/paymentintents/lifecycle)
@@ -93,40 +123,39 @@ The followig are links to the Stripe Documantion for the API's used in the appic
 
 ### Short Term Improvements
 
-- Avoid Duplicate Payment intents . Currently every load of the checkout route creates a new Intent. 
+- Avoid Duplicate Payment intents. Currently, every load of the checkout route creates a new Intent. 
 We could avoid this by using sessions and setting an idempotency_key (based on product price and unique sesssionid ) and the to track that same person is purchasing the same book and the payment is not completed.
-- As books are physical we should collect shipping and billing information and create a customer record.
+- As books are physical, we should collect shipping and billing information and create a customer record.
 - Add validation to the Email address and shipping address.
 - Send the customer an Email Receipt.
-- Load the  credit card form via Ajax too improve the customers page load experience.
+- Load the credit card form via Ajax to improve the customers' page load experience.
 - Handle the Stripe exceptions in the backend gracefully.
 
 ### Future Improvements
 - Add a shopping basket so the customer can purchase more than one book at a time
 - Use Stripe Webhooks this will allow payment methods that are not real time and deal with any transient network issues as the webhook will retry 
 
-Additionaly we could track what the customer has brought and provide both a customer portal and admin portal.
+Additionally, we could track what the customer has brought and provide both a customer portal and admin portal.
 
 This would require a lot of code to make the application a full ecommerce store which is beyond the scope and intent for the original project.
 
-There are many opensource ecommerce solutions that are more than capable to provide these functions for a much lower cost than that of the development cost of such an application.  
+There are many opensource ecommerce solutions that are more than capable of providing these functions for a much lower cost than that of the development cost of extending this application both in time and money.  
+
 
 ## Observations and Remarks
-While I was reading the Stripe documentation I realised that there were some other faster methods that could be used to sell the books online and would be ideal if this was a real world example.
+While I was reading the Stripe documentation, I realised that there were some other faster methods that could be used to sell the books online and would be ideal if this was solving a real-world problem.
 
-These methods would not meet the intent of the project requirements though but certainly could be used for a simple and fast way to sell something online with low or no code.
+These methods would not meet the intent of the project requirements though, but certainly could be used for a simple and fast way to sell something online with low or no code.
 
 Specifically there are
 
--  __Payment Links__  These would allow the creation of a payment link that could be posted  on Social Media or sent  vial email and the customer would see a hosted payment form
+-  __Payment Links__  These would allow the creation of a payment link that could be posted  on Social Media or sent via email and the customer would see a hosted payment form
   ( But  the  )[https://buy.stripe.com/test_eVa03w6yb7fN2Ig9AB]
-- __Stripe Checkout__  with either a hosted page or an embbed  form this uses the prdoduct that you have created in the Stripe portal or via the API this requires a working domain for the hosted page as you need to set the success_url and the cancel_url
+- __Stripe Checkout__  with either a hosted page or an embed  form this uses the product that you have created in the Stripe portal or via the API . A working domain for the hosted page is required as you need to set the success_url and the cancel_url
 
-Strip offers many ways of achieving a goal of taking payment and the documentation is very extensive.
+Stripe offers many ways of achieving the goal of taking payment and the documentation is very extensive.
 
-The project gave me the knowledge and the understanding of the Stripe Intents API so that I can now covert the application we run that use the Deprecated Stripe Charges API to the newer Intents API.
-
-
+The project gave me the knowledge and the understanding of the Stripe Payment Intents API so that I can now convert the applications we run that use the Deprecated Stripe Charges API to the newer Payment Intents API.
 
 
 

@@ -1,4 +1,5 @@
-# Stripe: Solutions Architect Take Home ### - Craig St George
+# Stripe: Solutions Architect Take Home 
+### - Craig St George
 
 This is a simple e-commerce application that a customer can use to purchase a book and pay using Stripe.
 

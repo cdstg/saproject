@@ -10,7 +10,7 @@ The application is PHP based on the [codeigniter framework](https://codeigniter.
 - Select a book to purchase.
 - Checkout and purchase the item using Stripe Elements.
 - Display a confirmation of purchase to the user with the total amount of the charge and Stripe Payment Intent ID (beginning with pi_).
-- The application is structured in such a way that you’re able to run it locally and integrate other Stripe features easily later.
+- The application should bne structured in such a way that you’re able to run it locally and integrate other Stripe features easily later.
 
 
 ## Running the Application
@@ -71,13 +71,12 @@ Test card numbers for both Success and Declines are available at
 ## Solution Approach
 After reviewing the requirements, reading the Stripe documentation and running the supplied Python boilerplate application I concluded that the Payment Intents API would be the best method to meet the requirements.
 
-Thsi will allow the application to be extend and integrate wirth other features later on.
+I decided to build the application in PHP with a framework as this will make it more flexible and faster to build should we need to add database, validation, authentication and other features later on.
+I chose the [codeigniter framework](https://codeigniter.com/) as its quite fast when compared to some other frameworks and very flexible.
 
-I decided ot build the application in PHP with the framework as this will make it more flexible should we need to add database features authentication and other features later on.
-I chose the [codeigniter framework](https://codeigniter.com/) as its quite fast when compared to some other.
+As the project required the application to run standalone I created a docker container so tha person running or testing the application would not need to have PHP installed and the other requirements for the application to run locally.
 
-As the projecty required  the application to run standaone I created a docker container ss tha  person running or testing the application would not need to have PHP installed and the other requirements for the appalction.
-The application can running locally under PHP as long at the application requirements are meet that are explained in the [Running the Application](#running-the-aaplication).
+The application can run locally under PHP as long at the application requirements are met that are explained in the [Running the Application](#running-the-application).
 
  
 ## How the solution works
@@ -103,20 +102,21 @@ The Success controller calls the Payment Intents API to receive the information 
 The main challenge I had was working out how to retrieve the email address I had set under the Billing Address in the Intent.
 as the paymentIntents->retrieve did not provide that information.
 
-When I realised that a Charge had been created I could retrieve that information using the Charges APi as the chargeid is in the Intent object that was retried. 
+When I realised that a Charge had been created I could retrieve that information using the Charges APi as the charge id is in the Intent object that was  retrieved. 
 
 I also had to familiarise myself with the Methods and Attributes of the Payments Intents API as previously I had only used the now Deprecated Stripe Charges API.
 
 
 ## Resources used
 
-The following are links to the Stripe Documentation for the APIs used in the application.
+The following are links to the Stripe Documentation that I used to integrate the Payment Integrate dnd the Stripe Elements
 
-- [Stripe Web Elements](https://docs.stripe.com/payments/elements)
+
 - [How Payment Intents work](https://docs.stripe.com/payments/paymentintents/lifecycle)
-- [JS API payment_intents](https://docs.stripe.com/js/payment_intents)
 - [Payment Intents API](https://docs.stripe.com/api/payment_intents)
 - [Charges API ](https://docs.stripe.com/api/charges)
+- [JS API payment_intents](https://docs.stripe.com/js/payment_intents)
+- [Stripe Web Elements](https://docs.stripe.com/payments/elements)
 
 
 ## Improvements 
@@ -124,16 +124,16 @@ The following are links to the Stripe Documentation for the APIs used in the app
 ### Short Term Improvements
 
 - Avoid Duplicate Payment intents. Currently, every load of the checkout route creates a new Intent. 
-We could avoid this by using sessions and setting an idempotency_key (based on product price and unique sesssionid ) and the to track that same person is purchasing the same book and the payment is not completed.
+We could avoid this by using sessions and setting an idempotency_key (based on product. price and unique sesssionid )
 - As books are physical, we should collect shipping and billing information and create a customer record.
-- Add validation to the Email address and shipping address.
-- Send the customer an Email Receipt.
+- Add validation to the email address and shipping address.
+- Send the customer an email receipt.
 - Load the credit card form via Ajax to improve the customers' page load experience.
 - Handle the Stripe exceptions in the backend gracefully.
 
 ### Future Improvements
-- Add a shopping basket so the customer can purchase more than one book at a time
-- Use Stripe Webhooks this will allow payment methods that are not real time and deal with any transient network issues as the webhook will retry 
+- Add a shopping basket so the customer can purchase more than one book at a time.
+- Use Stripe Webhooks this will allow payment methods that are not real time and deal with any transient network issues as the webhook will retry .
 
 Additionally, we could track what the customer has brought and provide both a customer portal and admin portal.
 
@@ -149,8 +149,8 @@ These methods would not meet the intent of the project requirements though, but 
 
 Specifically there are
 
--  __Payment Links__  These would allow the creation of a payment link that could be posted  on Social Media or sent via email and the customer would see a hosted payment form
-  ( But  the  )[https://buy.stripe.com/test_eVa03w6yb7fN2Ig9AB]
+-  __Payment Links__  These would allow the creation of a payment link that could be posted on Social Media or sent via email and the customer would see a hosted payment form
+  [https://buy.stripe.com/test_eVa03w6yb7fN2Ig9AB]
 - __Stripe Checkout__  with either a hosted page or an embed  form this uses the product that you have created in the Stripe portal or via the API . A working domain for the hosted page is required as you need to set the success_url and the cancel_url
 
 Stripe offers many ways of achieving the goal of taking payment and the documentation is very extensive.

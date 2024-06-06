@@ -18,9 +18,9 @@ The application is PHP based on the [codeigniter framework](https://codeigniter.
 
 To run the project locally, start by cloning the repository `git clone https://github.com/cdstg/saproject.git`
 
-Change to the `src` directory and Rename `sample.evn` to `.env`
+Change to the `src` directory and Rename `sample.env` to `.env`
 
-Edit the .`evn` file and enter your Stripe account's test API keys
+Edit the `.evn` file and enter your Stripe account's test API keys
 
 You will need to set your Stripe STRIPE_SECRET_KEY  and STRIPE_PUBLISHABLE_KEY
 in file.
@@ -59,7 +59,15 @@ Change to the src directory and run
   ```
 Navigate to [http://localhost:8080](http://localhost:8080) to view the application in your browser.
 
-if the port is in use you can run `php spark serve -port <your port>`
+If  the port is in use edit the `.evn` file  and change to the port you require
+
+```
+app.baseURL = 'http://localhost:8080/'
+
+app.baseURL = 'http://localhost: <your port>/'
+
+php spark serve -port <your port>
+```
 
 
 ## Usage
@@ -144,9 +152,9 @@ There are many opensource ecommerce solutions that are more than capable of prov
 
 
 ## Observations and Remarks
-While I was reading the Stripe documentation, I realised that there were some other faster methods that could be used to sell the books online and would be ideal if this was solving a real-world problem.
+While I was reading the Stripe documentation, I realised that there were some other faster methods that could be used to sell the books online and would be ideal in a real-world solution.
 
-These methods would not meet the intent of the project requirements though, but certainly could be used for a simple and fast way to sell something online with low or no code.
+These methods would not meet the intent of this projects requirements though, but certainly could be used for a simple and fast way to sell something online with low or no code.
 
 Specifically there are
 
